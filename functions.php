@@ -19,6 +19,7 @@ if ( ! function_exists( 'eig_sso_handler' ) ) {
 		// Too many failed SSO attempts
 		$attempts = eig_sso_failed_attempts();
 		if ( $attempts > 4 ) {
+			do_action( 'eig_sso_fail' );
 			wp_safe_redirect( wp_login_url() );
 			exit;
 		}
@@ -26,6 +27,7 @@ if ( ! function_exists( 'eig_sso_handler' ) ) {
 		// Unable to get user
 		$user = eig_sso_get_user();
 		if ( ! $user ) {
+			do_action( 'eig_sso_fail' );
 			wp_safe_redirect( wp_login_url() );
 			exit;
 		}
@@ -34,6 +36,7 @@ if ( ! function_exists( 'eig_sso_handler' ) ) {
 		$hash = substr( base64_encode( hash( 'sha256', $nonce . $salt, false ) ), 0, 64 );
 		if ( get_transient( 'sso_token' ) !== $hash ) {
 			eig_sso_failed_attempts( 1 );
+			do_action( 'eig_sso_fail' );
 			wp_safe_redirect( wp_login_url() );
 			exit;
 		}
@@ -41,16 +44,11 @@ if ( ! function_exists( 'eig_sso_handler' ) ) {
 		// Log user in
 		eig_sso_login_user( $user );
 
-		// Redirect to desired location
-		$redirect = esc_url( filter_input( INPUT_GET, 'bounce' ) );
-		if ( $redirect ) {
-			wp_safe_redirect( admin_url( $redirect ) );
-			exit;
-		}
-
-		// If no desired location, redirect to Bluehost dashboard in WordPress by default.
-		$redirect = apply_filters( 'eig_sso_default_redirect', admin_url( '/admin.php?page=mojo-home' ) );
+		// Handle redirect
+		$redirect = eig_sso_get_redirect_url();
+		do_action( 'eig_sso_success', $user, $redirect );
 		wp_safe_redirect( $redirect );
+		exit;
 
 	}
 
@@ -104,7 +102,7 @@ if ( ! function_exists( 'eig_sso_get_user' ) ) {
 			}
 		}
 
-		// If no user reference or user not found, find first admin user
+		// If user wasn't found, find first admin user
 		if ( ! $user ) {
 			$users = get_users( array( 'role' => 'administrator', 'number' => 1 ) );
 			if ( isset( $users[0] ) && is_a( $users[0], 'WP_User' ) ) {
@@ -128,6 +126,36 @@ if ( ! function_exists( 'eig_sso_login_user' ) ) {
 		wp_set_current_user( $user->ID, $user->user_login );
 		wp_set_auth_cookie( $user->ID );
 		do_action( 'wp_login', $user->user_login, $user );
+	}
+
+}
+
+if ( ! function_exists( 'eig_sso_get_redirect_url' ) ) {
+
+	/**
+	 * Get the SSO redirect URL.
+	 *
+	 * @return string
+	 */
+	function eig_sso_get_redirect_url() {
+		$url = '';
+
+		$params = array( 'bounce', 'redirect' );
+
+		foreach ( $params as $param ) {
+			if ( ! $url ) {
+				$relative_path = esc_url_raw( filter_input( INPUT_GET, $param ) );
+				if ( $relative_path ) {
+					$url = admin_url( $relative_path );
+				}
+			}
+		}
+
+		if ( ! $url ) {
+			$url = admin_url( '/admin.php?page=mojo-home' );
+		}
+
+		return (string) apply_filters( 'eig_sso_redirect', $url );
 	}
 
 }
