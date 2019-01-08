@@ -1,6 +1,8 @@
 <?php
 
-add_action( 'after_setup_theme', 'eig_module_sso_register' );
+if ( function_exists( 'add_action' ) ) {
+	add_action( 'after_setup_theme', 'eig_module_sso_register' );
+}
 
 /**
  * Register the single sign-on module
