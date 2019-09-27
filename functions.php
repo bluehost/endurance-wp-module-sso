@@ -152,7 +152,7 @@ if ( ! function_exists( 'eig_sso_get_redirect_url' ) ) {
 		}
 
 		if ( ! $url ) {
-			$url = admin_url( '/admin.php?page=mojo-home' );
+			$url = admin_url( '/admin.php?page=bluehost' );
 		}
 
 		return (string) apply_filters( 'eig_sso_redirect', $url );
