@@ -3,6 +3,9 @@
 </a>
 
  # Single-Sign On WordPress Module
+ [![Version Number](https://img.shields.io/github/v/release/bluehost/endurance-wp-module-sso?color=21a0ed&labelColor=333333)](https://github.com/bluehost/endurance-wp-module-sso/releases)
+[![License](https://img.shields.io/github/license/bluehost/endurance-wp-module-sso?labelColor=333333&color=666666)](https://raw.githubusercontent.com/bluehost/endurance-wp-module-sso/master/LICENSE)
+
  
  Adds support for secure, single-sign on into WordPress for account owners via hosting control panels.
  
