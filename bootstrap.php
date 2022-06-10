@@ -24,6 +24,11 @@ function eig_module_sso_load() {
 
 	require dirname( __FILE__ ) . '/functions.php';
 
+	// Unregister actions from the sso.php mu-plugin in case they exist
+	// This ensures that this code always takes priority for SSO handling
+	remove_action( 'wp_ajax_nopriv_sso-check', 'sso_check' );
+	remove_action( 'wp_ajax_sso-check', 'sso_check' );
+
 	add_action( 'wp_ajax_nopriv_sso-check', 'eig_sso_handler' );
 	add_action( 'wp_ajax_sso-check', 'eig_sso_handler' );
 
