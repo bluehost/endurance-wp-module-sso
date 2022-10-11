@@ -1,6 +1,7 @@
 {
   "name": "bluehost/endurance-wp-module-sso",
   "description": "Bluehost Single Sign-on Integration",
+  "abandoned": "newfold-labs/wp-module-sso",
   "type": "library",
   "license": "GPL-2.0-or-later",
   "authors": [
